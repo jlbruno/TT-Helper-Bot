@@ -7,9 +7,7 @@ bot.listen(1337, '127.0.0.1');
 
 var myScriptVersion = '0.0.0';
 
-var config = {
-	autobop : false
-};
+config.autobop = false;
 
 
 bot.on('httpRequest', function (req, res) {
