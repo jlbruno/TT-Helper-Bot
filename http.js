@@ -8,6 +8,9 @@ bot.listen(1337, '127.0.0.1');
 var myScriptVersion = '0.0.0';
 
 config.autobop = false;
+config.debug = false;
+
+var roomMods;
 
 
 bot.on('httpRequest', function (req, res) {
@@ -34,15 +37,20 @@ bot.on('httpRequest', function (req, res) {
    }
 });
 
-var currSong = '';
-var lastSong = '';
-var currArtist = '';
-var lastArtist = '';
-var currDjId = '';
-var lastDjId = '';
-var lastDjName = '';
+
 var currVotes = { 'up': 0, 'down': 0 };
-var lastVotes = {};
+
+var Song = function() {
+	this.songTitle = '';
+	this.artist = '';
+	this.djId = '';
+	this.djName = '';
+	this.votes = { 'up': 0, 'down': 0 };
+};
+	
+var currentSong = new Song();	
+
+var history = [];
 
 bot.on('ready', function () {
    bot.stalk(config.botOwner, function (data) {
@@ -69,13 +77,17 @@ bot.on('roomChanged', function (data) {
          break;
       }
    }
+	addCurrentSongToHistory(data);
+	
+	roomMods = data.room.metadata.moderator_id;
 });
 
 
 bot.on('speak', function(data){
 	//var result = data.text.match(/^\/(.*?)( .*)?$/);
-	var result = data.text.match(/^bot (.*?)( .*)?$/) || data.text.match(/^sorry (.*?)( .*)?$/);
+	var result = data.text.match(/^bot (.*?)( .*)?$/) || data.text.match(/^bot(.*?)( .*)?$/) || data.text.match(/^sorry (.*?)( .*)?$/);
 	//console.log('result: ' + result);
+	
 	if(result){
 		var command = result[1].trim().toLowerCase();
 		//console.log('command: ' + command);
@@ -84,6 +96,8 @@ bot.on('speak', function(data){
 			param = result[2].trim().toLowerCase();
 		}
 		var isOwner = (data.userid === config.botOwner);
+		var isModerator = roomMods.indexOf(data.userid) > -1 ? true : false;
+
 		switch(command){
 			case 'dance':
 				bot.vote('up');
@@ -93,7 +107,8 @@ bot.on('speak', function(data){
 				bot.vote('down');
 				break;
 			case 'dj':
-				if (isOwner) bot.addDj();
+			case 'hold':
+				if (isModerator || isOwner) bot.addDj();
 				break;
 			case 'down':
 				if (isOwner) bot.remDj();
@@ -105,13 +120,29 @@ bot.on('speak', function(data){
 				if (isOwner) bot.snag();
 				break;
 			case 'goodnight':
-				bot.roomDeregister();
+				if (isModerator || isOwner) bot.roomDeregister();
 				break;
 			case 'goodbye':
-				bot.roomDeregister();
+				if (isModerator || isOwner) bot.roomDeregister();
+				break;
+			case 'autobop':
+				if (isModerator || isOwner) config.autobop = param;
 				break;
 			case 'last':
-				bot.speak(lastDjName + ' played "' + lastSong + '" by ' + lastArtist + '. The votes: +' + lastVotes['up'] + ', -' + lastVotes['down']);
+				var string = '';
+				if (param > 3) {
+					param = 3;
+					bot.speak("I don't keep a history that far back. Here's what I know.");
+				}
+				var i = param || 1;
+				while (i--) {
+					if (history[i] === undefined) {
+						string = string + 'I don\'t have history for the ' + getGetOrdinal(i+1) + ' song, sorry. ';
+						continue;
+					}
+					string = string + history[i].djName + ' played "' + history[i].songTitle + '" by ' + history[i].artist + '. The votes: +' + history[i].votes['up'] + ', -' + history[i].votes['down'] + '. ';
+				}
+				bot.speak(string);
 				break;
 		}
 	}
@@ -120,6 +151,8 @@ bot.on('speak', function(data){
 
 
 bot.on('newsong', function(data){
+	//if (config.debug) console.log('new song ===================================================');
+	//bot.speak('bot dance');
 	if (config.autobop) {
 		var min = 5000;
 		var max = 30000;
@@ -129,20 +162,49 @@ bot.on('newsong', function(data){
 			 bot.vote('up');
 		}, rand);
 	}
-	  
-	lastSong = currSong;
-	lastArtist = currArtist;
-	lastDjId = currDjId;
-	bot.getProfile(currDjId, function(data){
-		lastDjName = data.name;
-	});
-	currSong = data.room.metadata.current_song.metadata.song;
-	currArtist = data.room.metadata.current_song.metadata.artist;
-	currDjId = data.room.metadata.current_dj;
-	lastVotes = currVotes;
+	
+	addCurrentSongToHistory(data);
+	
+	
 });
 
 bot.on('update_votes', function(data){
-	currVotes['up'] = data.room.metadata.upvotes;
-	currVotes['down'] = data.room.metadata.downvotes;
+	currentSong.votes['up'] = data.room.metadata.upvotes;
+	currentSong.votes['down'] = data.room.metadata.downvotes;
 });
+
+
+var addCurrentSongToHistory = function(data) {
+	if (data.room.metadata.current_song === null) {
+		return;
+	}
+
+	var play = new Song();
+	play.songTitle = currentSong.songTitle;
+	play.artist = currentSong.artist;
+	play.djId = currentSong.djId;
+	play.votes.up = currentSong.votes['up'];
+	play.votes.down = currentSong.votes['down'];
+
+	
+	currentSong.songTitle = data.room.metadata.current_song.metadata.song;
+	currentSong.artist = data.room.metadata.current_song.metadata.artist;
+	currentSong.djId = data.room.metadata.current_dj;
+	
+	
+	bot.getProfile(play.djId, function(data){
+		play.djName = data.name;
+		history.unshift(play);
+		if (history.length > 3) {
+			history.pop();
+		}
+	});	
+	
+};
+
+
+var getGetOrdinal = function(n) {
+   var s=["th","st","nd","rd"],
+       v=n%100;
+   return n+(s[(v-20)%10]||s[v]||s[0]);
+};
