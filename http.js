@@ -14,27 +14,36 @@ var roomMods;
 
 
 bot.on('httpRequest', function (req, res) {
-   var method = req.method;
-   var url    = req.url;
-   switch (url) {
-      case '/version/':
-         if (method == 'GET') {
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end('{"version":"'+myScriptVersion+'"}');
-         } else {
-            res.writeHead(500);
-            res.end();
-         }
-         break;
-      case '/dance/':
-         bot.vote('up');
-		 res.end('dancing...');
-         break;
-      default:
-         res.writeHead(500);
-         res.end();
-         break;
-   }
+	var method = req.method;
+	var url    = req.url;
+	switch (url) {
+		case '/':
+			res.sendHeader(200, {'Content-Type': 'text/html'});
+			res.sendBody(
+				'<form action="/myaction" method="post" enctype="multipart/form-data">'+
+				'<input type="text" name="field1">'+
+				'<input type="submit" value="Submit">'+
+				'</form>'
+			);
+			res.finish();
+		case '/version/':
+		if (method == 'GET') {
+			res.writeHead(200, { 'Content-Type': 'application/json' });
+			res.end('{"version":"'+myScriptVersion+'"}');
+		} else {
+			res.writeHead(500);
+			res.end();
+		}
+		break;
+		case '/dance/':
+			bot.vote('up');
+			res.end('dancing...');
+			break;
+		default:
+			res.writeHead(500);
+			res.end();
+			break;
+	}
 });
 
 
@@ -85,7 +94,7 @@ bot.on('roomChanged', function (data) {
 
 bot.on('speak', function(data){
 	//var result = data.text.match(/^\/(.*?)( .*)?$/);
-	var result = data.text.match(/^bot (.*?)( .*)?$/) || data.text.match(/^bot(.*?)( .*)?$/) || data.text.match(/^sorry (.*?)( .*)?$/);
+	var result = data.text.match(/^bot (.*?)( .*)?$/) || data.text.match(/^bot(.*?)( .*)?$/) || data.text.match(/^sorry (.*?)( .*)?$/) || data.text.match(/^sam (.*?)( .*)?$/);
 	//console.log('result: ' + result);
 	
 	if(result){
@@ -144,6 +153,9 @@ bot.on('speak', function(data){
 				}
 				bot.speak(string);
 				break;
+			case 'command':
+				if (isOwner) eval(param);
+				break;
 		}
 	}
 });
@@ -152,7 +164,7 @@ bot.on('speak', function(data){
 
 bot.on('newsong', function(data){
 	//if (config.debug) console.log('new song ===================================================');
-	//bot.speak('bot dance');
+	if (config.autobop) bot.speak('bot dance');
 	if (config.autobop) {
 		var min = 5000;
 		var max = 30000;
