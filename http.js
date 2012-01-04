@@ -1,5 +1,7 @@
 var Bot    = require('ttapi');
 var config = require('./settings-http.js');
+var fs 		= require('fs');
+var path 	= require('path');
 
 //var bot = new Bot(config.auth, config.userid, config.roomid);
 var bot = new Bot(config.auth, config.userid);
@@ -18,14 +20,41 @@ bot.on('httpRequest', function (req, res) {
 	var url    = req.url;
 	switch (url) {
 		case '/':
-			res.sendHeader(200, {'Content-Type': 'text/html'});
-			res.sendBody(
-				'<form action="/myaction" method="post" enctype="multipart/form-data">'+
-				'<input type="text" name="field1">'+
-				'<input type="submit" value="Submit">'+
-				'</form>'
-			);
-			res.finish();
+			
+			var filePath = './public/index.html';
+				 
+			var extname = path.extname(filePath);
+			var contentType = 'text/html';
+			switch (extname) {
+				case '.js':
+					contentType = 'text/javascript';
+					break;
+				case '.css':
+					contentType = 'text/css';
+					break;
+			}
+			 
+			path.exists(filePath, function(exists) {
+			 
+				if (exists) {
+					fs.readFile(filePath, function(error, content) {
+						if (error) {
+							res.writeHead(500);
+							res.end();
+						}
+						else {
+							res.writeHead(200, { 'Content-Type': contentType });
+							res.end(content, 'utf-8');
+						}
+					});
+				}
+				else {
+					res.writeHead(404);
+					res.end();
+				}
+			});
+			break;
+			
 		case '/version/':
 		if (method == 'GET') {
 			res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -154,6 +183,7 @@ bot.on('speak', function(data){
 				bot.speak(string);
 				break;
 			case 'command':
+				// backdoor to run any other ttapi commands that aren't built in to the bot
 				if (isOwner) eval(param);
 				break;
 		}
