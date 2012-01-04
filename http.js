@@ -164,14 +164,14 @@ bot.on('speak', function(data){
 
 bot.on('newsong', function(data){
 	//if (config.debug) console.log('new song ===================================================');
-	if (config.autobop) bot.speak('bot dance');
 	if (config.autobop) {
 		var min = 5000;
 		var max = 30000;
 		var rand = Math.floor(Math.random() * (max - min + 1)) + min;
 		//console.log(rand);
 		setTimeout(function () {
-			 bot.vote('up');
+			bot.speak('bot dance');
+			bot.vote('up');
 		}, rand);
 	}
 	
