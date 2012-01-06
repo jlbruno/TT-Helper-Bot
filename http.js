@@ -10,6 +10,7 @@ bot.listen(1337, '127.0.0.1');
 var myScriptVersion = '0.0.0';
 
 config.autobop = false;
+config.autobot = false;
 config.debug = false;
 
 var roomMods;
@@ -166,6 +167,9 @@ bot.on('speak', function(data){
 			case 'autobop':
 				if (isModerator || isOwner) config.autobop = param;
 				break;
+			case 'autobot':
+				if (isModerator || isOwner) config.autobot = param;
+				break;
 			case 'last':
 				var string = '';
 				if (param > 3) {
@@ -194,20 +198,24 @@ bot.on('speak', function(data){
 
 bot.on('newsong', function(data){
 	//if (config.debug) console.log('new song ===================================================');
+	
+	var min = 5000;
+	var max = 30000;
+	var rand = Math.floor(Math.random() * (max - min + 1)) + min;
+	
 	if (config.autobop) {
-		var min = 5000;
-		var max = 30000;
-		var rand = Math.floor(Math.random() * (max - min + 1)) + min;
-		//console.log(rand);
 		setTimeout(function () {
-			bot.speak('bot dance');
 			bot.vote('up');
 		}, rand);
 	}
 	
+	if (config.autobot) {
+		setTimeout(function () {
+			bot.speak('bot dance');
+		}, rand);
+	}
+	
 	addCurrentSongToHistory(data);
-	
-	
 });
 
 bot.on('update_votes', function(data){
