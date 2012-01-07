@@ -16,13 +16,27 @@ config.debug = false;
 var roomMods;
 
 
-bot.on('httpRequest', function (req, res) {
-	var method = req.method;
-	var url    = req.url;
+bot.on('httpRequest', function (request, res) {
+	var method = request.method;
+	var url    = request.url;
 	switch (url) {
-		case '/':
-			
-			var filePath = './public/index.html';
+		case '/version/':
+		if (method == 'GET') {
+			res.writeHead(200, { 'Content-Type': 'application/json' });
+			res.end('{"version":"'+myScriptVersion+'"}');
+		} else {
+			res.writeHead(500);
+			res.end();
+		}
+		break;
+		case '/dance/':
+			bot.vote('up');
+			res.end('dancing...');
+			break;
+		default:
+			var filePath = '.' + request.url;
+			if (filePath == './')
+				filePath = './public/index.html';
 				 
 			var extname = path.extname(filePath);
 			var contentType = 'text/html';
@@ -54,24 +68,6 @@ bot.on('httpRequest', function (req, res) {
 					res.end();
 				}
 			});
-			break;
-			
-		case '/version/':
-		if (method == 'GET') {
-			res.writeHead(200, { 'Content-Type': 'application/json' });
-			res.end('{"version":"'+myScriptVersion+'"}');
-		} else {
-			res.writeHead(500);
-			res.end();
-		}
-		break;
-		case '/dance/':
-			bot.vote('up');
-			res.end('dancing...');
-			break;
-		default:
-			res.writeHead(500);
-			res.end();
 			break;
 	}
 });
