@@ -92,9 +92,8 @@ var currentSong = new Song();
 var history = [];
 
 bot.on('ready', function () {
-   bot.stalk(config.botOwner, function (data) {
-      var room = data.roomId;
-      bot.roomRegister(room);
+	bot.stalk(config.botOwner, function (data) {
+		bot.roomRegister(data.roomId);
    });
 });
 
@@ -102,20 +101,19 @@ bot.on('deregistered', function (data) {
    if (data.user[0].userid == config.botOwner) {
       setTimeout(function () {
          bot.stalk(config.botOwner, function (data) {
-            var room = data.roomId;
-            bot.roomRegister(room);
+            bot.roomRegister(data.roomId);
          });
       }, 5000);
    }
 });
 
 bot.on('roomChanged', function (data) {
-   for (var i=0; i<data.users.length; i++) {
-      if (data.users[i].userid == config.botOwner) {
-         //console.log(data.users[i]);
-         break;
-      }
-   }
+	for (var i=0; i<data.users.length; i++) {
+		if (data.users[i].userid == config.botOwner) {
+			//console.log(data.users[i]);
+			break;
+		}
+	}
 	addCurrentSongToHistory(data);
 	
 	roomMods = data.room.metadata.moderator_id;
