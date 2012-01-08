@@ -11,9 +11,28 @@ var myScriptVersion = '0.0.0';
 
 config.autobop = false;
 config.autobot = false;
+config.followMe = false;
 config.debug = false;
 
 var roomMods;
+
+
+var currVotes = { 'up': 0, 'down': 0 };
+
+var Song = function() {
+	this.songTitle = '';
+	this.artist = '';
+	this.djId = '';
+	this.djName = '';
+	this.votes = { 'up': 0, 'down': 0 };
+};
+	
+var currentSong = new Song();	
+
+var history = [];
+
+var usersList = { };
+
 
 
 bot.on('httpRequest', function (request, res) {
@@ -31,7 +50,15 @@ bot.on('httpRequest', function (request, res) {
 		break;
 		case '/dance/':
 			bot.vote('up');
-			res.end('dancing...');
+			break;
+		case '/lame/':
+			bot.vote('down');
+			break;
+		case '/findMe/':
+			findOwner();
+			break;
+		case '/homeRoom/':
+			homeRoom();
 			break;
 		default:
 			var filePath = '.' + request.url;
@@ -73,47 +100,6 @@ bot.on('httpRequest', function (request, res) {
 });
 
 
-var currVotes = { 'up': 0, 'down': 0 };
-
-var Song = function() {
-	this.songTitle = '';
-	this.artist = '';
-	this.djId = '';
-	this.djName = '';
-	this.votes = { 'up': 0, 'down': 0 };
-};
-	
-var currentSong = new Song();	
-
-var history = [];
-
-bot.on('ready', function () {
-	bot.stalk(config.botOwner, function (data) {
-		bot.roomRegister(data.roomId);
-   });
-});
-
-bot.on('deregistered', function (data) {
-   if (data.user[0].userid == config.botOwner) {
-      setTimeout(function () {
-         bot.stalk(config.botOwner, function (data) {
-            bot.roomRegister(data.roomId);
-         });
-      }, 5000);
-   }
-});
-
-bot.on('roomChanged', function (data) {
-	for (var i=0; i<data.users.length; i++) {
-		if (data.users[i].userid == config.botOwner) {
-			//console.log(data.users[i]);
-			break;
-		}
-	}
-	addCurrentSongToHistory(data);
-	
-	roomMods = data.room.metadata.moderator_id;
-});
 
 
 bot.on('speak', function(data){
@@ -164,6 +150,9 @@ bot.on('speak', function(data){
 			case 'autobot':
 				if (isModerator || isOwner) config.autobot = param;
 				break;
+			case 'follow':
+				if (isOwner) config.followMe = param;
+				break;
 			case 'last':
 				var string = '';
 				if (param > 3) {
@@ -187,6 +176,42 @@ bot.on('speak', function(data){
 		}
 	}
 });
+
+
+
+
+
+
+
+bot.on('ready', function () {
+	bot.stalk(config.botOwner, function (data) {
+		bot.roomRegister(data.roomId);
+   });
+});
+
+bot.on('deregistered', function (data) {
+	if (data.user[0].userid == config.botOwner && config.followMe) {	
+		setTimeout(function () {
+			findOwner();
+		}, 5000);
+	}
+});
+
+bot.on('roomChanged', function (data) {
+	for (var i=0; i<data.users.length; i++) {
+		if (data.users[i].userid == config.botOwner) {
+			//console.log(data.users[i]);
+			break;
+		}
+	}
+	addCurrentSongToHistory(data);
+	
+	roomMods = data.room.metadata.moderator_id;
+});
+
+
+
+
 
 
 
@@ -244,6 +269,16 @@ var addCurrentSongToHistory = function(data) {
 		}
 	});	
 	
+};
+
+var findOwner = function() {
+	bot.stalk(config.botOwner, function (data) {
+		bot.roomRegister(data.roomId);
+	});
+};
+
+var homeRoom = function() {
+	bot.roomRegister(config.roomid);
 };
 
 
