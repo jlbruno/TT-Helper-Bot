@@ -122,72 +122,74 @@ bot.on('speak', function(data){
 		var isOwner = (data.userid === config.botOwner);
 		var isModerator = roomMods.indexOf(data.userid) > -1 ? true : false;
 
-		switch(command){
-			case 'dance':
-				bot.vote('up');
-				//bot.speak('I love this song!');
-				break;
-			case 'lame':
-				bot.vote('down');
-				break;
-			case 'dj':
-			case 'hold':
-				if (isModerator || isOwner) bot.addDj();
-				break;
-			case 'down':
-				if (isOwner) bot.remDj();
-				break;
-			case 'skip':
-				bot.stopSong();
-				break;
-			case 'snag':
-				if (isOwner) bot.snag();
-				break;
-			case 'goodnight':
-				if (isModerator || isOwner) bot.roomDeregister();
-				break;
-			case 'goodbye':
-				if (isModerator || isOwner) bot.roomDeregister();
-				break;
-			case 'autobop':
-				if (isModerator || isOwner) config.autobop = param;
-				break;
-			case 'autobot':
-				if (isModerator || isOwner) config.autobot = param;
-				break;
-			case 'follow':
-				if (isOwner) config.followMe = param;
-				break;
-			case 'last':
-				var string = '';
-				if (param > 3) {
-					param = 3;
-					bot.speak("I don't keep a history that far back. Here's what I know.");
-				}
-				var i = param || 1;
-				while (i--) {
-					if (history[i] === undefined) {
-						string = string + 'I don\'t have history for the ' + getGetOrdinal(i+1) + ' song, sorry. ';
-						continue;
-					}
-					string = string + history[i].djName + ' played "' + history[i].songTitle + '" by ' + history[i].artist + '. The votes: +' + history[i].votes['up'] + ', -' + history[i].votes['down'] + '. The <3s: ' + history[i].hearts + '.';
-				}
-				bot.speak(string);
-				break;
-			case 'afk':
-				console.log(djList);
-				break;
-			case 'command':
-				// backdoor to run any other ttapi commands that aren't built in to the bot
-				if (isOwner) eval(param);
-				break;
-		}
+		doCommand(command, param, isOwner, isModerator);
 	}
 });
 
 
 
-
+var doCommand = function(command, param, isOwner, isModerator) {
+	switch(command){
+		case 'dance':
+			bot.vote('up');
+			//bot.speak('I love this song!');
+			break;
+		case 'lame':
+			bot.vote('down');
+			break;
+		case 'dj':
+		case 'hold':
+			if (isModerator || isOwner) bot.addDj();
+			break;
+		case 'down':
+			if (isOwner) bot.remDj();
+			break;
+		case 'skip':
+			bot.stopSong();
+			break;
+		case 'snag':
+			if (isOwner) bot.snag();
+			break;
+		case 'goodnight':
+			if (isModerator || isOwner) bot.roomDeregister();
+			break;
+		case 'goodbye':
+			if (isModerator || isOwner) bot.roomDeregister();
+			break;
+		case 'autobop':
+			if (isModerator || isOwner) config.autobop = param;
+			break;
+		case 'autobot':
+			if (isModerator || isOwner) config.autobot = param;
+			break;
+		case 'follow':
+			if (isOwner) config.followMe = param;
+			break;
+		case 'last':
+			var string = '';
+			if (param > 3) {
+				param = 3;
+				bot.speak("I don't keep a history that far back. Here's what I know.");
+			}
+			var i = param || 1;
+			while (i--) {
+				if (history[i] === undefined) {
+					string = string + 'I don\'t have history for the ' + getGetOrdinal(i+1) + ' song, sorry. ';
+					continue;
+				}
+				string = string + history[i].djName + ' played "' + history[i].songTitle + '" by ' + history[i].artist + '. The votes: +' + history[i].votes['up'] + ', -' + history[i].votes['down'] + '. The <3s: ' + history[i].hearts + '.';
+			}
+			bot.speak(string);
+			break;
+		case 'afk':
+			console.log(djList);
+			break;
+		case 'command':
+			// backdoor to run any other ttapi commands that aren't built in to the bot
+			if (isOwner) eval(param);
+			break;
+	}
+}
 
 
 
