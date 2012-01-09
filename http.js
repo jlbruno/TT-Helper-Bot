@@ -25,13 +25,14 @@ var Song = function() {
 	this.djId = '';
 	this.djName = '';
 	this.votes = { 'up': 0, 'down': 0 };
+	this.hearts = 0;
 };
 	
 var currentSong = new Song();	
 
 var history = [];
 
-var usersList = { };
+var djList = { };
 
 
 
@@ -59,6 +60,9 @@ bot.on('httpRequest', function (request, res) {
 			break;
 		case '/homeRoom/':
 			homeRoom();
+			break;
+		case '/afk/':
+			console.log(djList);
 			break;
 		default:
 			var filePath = '.' + request.url;
@@ -104,7 +108,8 @@ bot.on('httpRequest', function (request, res) {
 
 bot.on('speak', function(data){
 	//var result = data.text.match(/^\/(.*?)( .*)?$/);
-	var result = data.text.match(/^bot (.*?)( .*)?$/) || data.text.match(/^bot(.*?)( .*)?$/) || data.text.match(/^sorry (.*?)( .*)?$/) || data.text.match(/^sam (.*?)( .*)?$/);
+	//var result = data.text.match(/^bot (.*?)( .*)?$/) || data.text.match(/^bot(.*?)( .*)?$/) || data.text.match(/^sorry (.*?)( .*)?$/) || data.text.match(/^sam (.*?)( .*)?$/);
+	var result = data.text.match(/^sorry (.*?)( .*)?$/) || data.text.match(/^sam (.*?)( .*)?$/);
 	//console.log('result: ' + result);
 	
 	if(result){
@@ -165,9 +170,12 @@ bot.on('speak', function(data){
 						string = string + 'I don\'t have history for the ' + getGetOrdinal(i+1) + ' song, sorry. ';
 						continue;
 					}
-					string = string + history[i].djName + ' played "' + history[i].songTitle + '" by ' + history[i].artist + '. The votes: +' + history[i].votes['up'] + ', -' + history[i].votes['down'] + '. ';
+					string = string + history[i].djName + ' played "' + history[i].songTitle + '" by ' + history[i].artist + '. The votes: +' + history[i].votes['up'] + ', -' + history[i].votes['down'] + '. The <3s: ' + history[i].hearts + '.';
 				}
 				bot.speak(string);
+				break;
+			case 'afk':
+				console.log(djList);
 				break;
 			case 'command':
 				// backdoor to run any other ttapi commands that aren't built in to the bot
@@ -212,6 +220,72 @@ bot.on('roomChanged', function (data) {
 
 
 
+// ============= DJ AFK TIMER ==================
+
+
+// Add everyone in the users list.
+bot.on('roomChanged', function (data) {
+	var djs = data.room.metadata.djs;
+	djList = { };
+	var len = djs.length;
+	for (var i=0; i<len; i++) {  
+		bot.getProfile(djs[i], function(data) {
+			var user = {};
+			user.userid = data.userid;
+			user.name = data.name;
+			user.lastActivity = new Date();
+			djList[user.userid] = user;
+		});
+	}
+});
+
+
+// Someone stopped dj'ing, remove them from the dj list.
+bot.on('rem_dj', function (data) {
+	delete djList[data.user[0].userid];
+});
+
+// Someone starts dj'ing, add them.
+bot.on('add_dj', function (data) {
+	var user = data.user[0];
+	user.lastActivity = new Date();
+	djList[user.userid] = user;
+});
+
+
+// Someone talk, update his timestamp.
+bot.on('speak', function (data) {
+	var userid = data.userid;
+	if (djList[data.userid] !== undefined) {
+		djList[data.userid].lastActivity = new Date();
+	}
+});
+
+// Someone vote, update his timestamp.
+bot.on('update_votes', function (data) {
+	var votelog = data.room.metadata.votelog;
+	for (var i=0; i<votelog.length; i++) {
+		var userid = votelog[i][0];
+		if (djList[userid] !== undefined) {
+			djList[userid].lastActivity = new Date();
+		}
+	}
+});
+
+// Someone add the surrent song to his playlist.
+bot.on('snagged', function (data) {
+	var userid = data.userid;
+	if (djList[userid] !== undefined) {
+		djList[data.userid].lastActivity = new Date();
+	}
+});
+
+
+
+// ============= end DJ AFK TIMER ==================
+
+
+
 
 
 
@@ -242,6 +316,10 @@ bot.on('update_votes', function(data){
 	currentSong.votes['down'] = data.room.metadata.downvotes;
 });
 
+bot.on('snagged', function(data) {
+	currentSong.hearts = currentSong.hearts + 1;
+});
+
 
 var addCurrentSongToHistory = function(data) {
 	if (data.room.metadata.current_song === null) {
@@ -254,11 +332,14 @@ var addCurrentSongToHistory = function(data) {
 	play.djId = currentSong.djId;
 	play.votes.up = currentSong.votes['up'];
 	play.votes.down = currentSong.votes['down'];
+	play.hearts = currentSong.hearts;
 
 	
 	currentSong.songTitle = data.room.metadata.current_song.metadata.song;
 	currentSong.artist = data.room.metadata.current_song.metadata.artist;
 	currentSong.djId = data.room.metadata.current_dj;
+	currentSong.votes.up = data.room.metadata.upvotes;
+	currentSong.votes.down = data.room.metadata.downvotes;
 	
 	
 	bot.getProfile(play.djId, function(data){
