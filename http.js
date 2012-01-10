@@ -38,31 +38,13 @@ var djList = { };
 
 bot.on('httpRequest', function (request, res) {
 	var method = request.method;
-	var url    = request.url;
+	var url    = require('url').parse(request.url).pathname;
+	var command = require('url').parse(request.url, true).query.command;
+	var param = require('url').parse(request.url, true).query.param;
+	
 	switch (url) {
-		case '/version/':
-		if (method == 'GET') {
-			res.writeHead(200, { 'Content-Type': 'application/json' });
-			res.end('{"version":"'+myScriptVersion+'"}');
-		} else {
-			res.writeHead(500);
-			res.end();
-		}
-		break;
-		case '/dance/':
-			bot.vote('up');
-			break;
-		case '/lame/':
-			bot.vote('down');
-			break;
-		case '/findMe/':
-			findOwner();
-			break;
-		case '/homeRoom/':
-			homeRoom();
-			break;
-		case '/afk/':
-			console.log(djList);
+		case '/command/': 
+			doCommand(command, param, true, true);
 			break;
 		default:
 			var filePath = '.' + request.url;
@@ -164,6 +146,15 @@ var doCommand = function(command, param, isOwner, isModerator) {
 			break;
 		case 'follow':
 			if (isOwner) config.followMe = param;
+			break;
+		case 'speak':
+			if (isOwner) bot.speak(param);
+			break;
+		case 'homeRoom': 
+			homeRoom();
+			break;
+		case 'findMe':
+			findOwner();
 			break;
 		case 'last':
 			var string = '';
@@ -361,6 +352,7 @@ var findOwner = function() {
 };
 
 var homeRoom = function() {
+	console.log(config.roomid);
 	bot.roomRegister(config.roomid);
 };
 
