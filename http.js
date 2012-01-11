@@ -93,10 +93,19 @@ bot.on('speak', function(data){
 	var isOwner = (data.userid === config.botOwner);
 	var isModerator = roomMods.indexOf(data.userid) > -1 ? true : false;
 	
-	//var result = data.text.match(/^\/(.*?)( .*)?$/);
 	//var result = data.text.match(/^bot (.*?)( .*)?$/) || data.text.match(/^bot(.*?)( .*)?$/) || data.text.match(/^sorry (.*?)( .*)?$/) || data.text.match(/^sam (.*?)( .*)?$/);
-	var result = data.text.match(/^sorry (.*?)( .*)?$/) || data.text.match(/^sam (.*?)( .*)?$/);
-	//console.log('result: ' + result);
+	
+	var greetings = ['sam ', 'sorry '];
+	if (isOwner || isModerator) {
+		greetings = greetings.concat(['bot ', 'bot']);
+	}
+	
+	for (var i=0, len=greetings.length; i<len; i++) {
+		var pattern = new RegExp('^' + greetings[i] + '(.*?)( .*)?$');
+		var result = data.text.match(pattern);
+		if (result) break;
+	}
+	
 	
 	if(result){
 		var command = result[1].trim().toLowerCase();
