@@ -89,6 +89,10 @@ bot.on('httpRequest', function (request, res) {
 
 
 bot.on('speak', function(data){
+
+	var isOwner = (data.userid === config.botOwner);
+	var isModerator = roomMods.indexOf(data.userid) > -1 ? true : false;
+	
 	//var result = data.text.match(/^\/(.*?)( .*)?$/);
 	//var result = data.text.match(/^bot (.*?)( .*)?$/) || data.text.match(/^bot(.*?)( .*)?$/) || data.text.match(/^sorry (.*?)( .*)?$/) || data.text.match(/^sam (.*?)( .*)?$/);
 	var result = data.text.match(/^sorry (.*?)( .*)?$/) || data.text.match(/^sam (.*?)( .*)?$/);
@@ -101,8 +105,6 @@ bot.on('speak', function(data){
 		if (result.length == 3 && result[2]){
 			param = result[2].trim().toLowerCase();
 		}
-		var isOwner = (data.userid === config.botOwner);
-		var isModerator = roomMods.indexOf(data.userid) > -1 ? true : false;
 
 		doCommand(command, param, isOwner, isModerator);
 	}
@@ -160,7 +162,7 @@ var doCommand = function(command, param, isOwner, isModerator) {
 			var string = '';
 			if (param > 3) {
 				param = 3;
-				bot.speak("I don't keep a history that far back. Here's what I know.");
+				bot.speak("I don't keep a history that far back. Here's what I know. ");
 			}
 			var i = param || 1;
 			while (i--) {
@@ -168,7 +170,7 @@ var doCommand = function(command, param, isOwner, isModerator) {
 					string = string + 'I don\'t have history for the ' + getGetOrdinal(i+1) + ' song, sorry. ';
 					continue;
 				}
-				string = string + history[i].djName + ' played "' + history[i].songTitle + '" by ' + history[i].artist + '. The votes: +' + history[i].votes['up'] + ', -' + history[i].votes['down'] + '. The <3s: ' + history[i].hearts + '.';
+				string = string + history[i].djName + ' played "' + history[i].songTitle + '" by ' + history[i].artist + '. The votes: +' + history[i].votes['up'] + ', -' + history[i].votes['down'] + '. The <3s: ' + history[i].hearts + '.  ';
 			}
 			bot.speak(string);
 			break;
@@ -333,6 +335,7 @@ var addCurrentSongToHistory = function(data) {
 	currentSong.djId = data.room.metadata.current_dj;
 	currentSong.votes.up = data.room.metadata.upvotes;
 	currentSong.votes.down = data.room.metadata.downvotes;
+	currentSong.hearts = 0;
 	
 	
 	bot.getProfile(play.djId, function(data){
