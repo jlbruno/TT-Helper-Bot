@@ -167,6 +167,9 @@ var doCommand = function(command, param, isOwner, isModerator) {
 		case 'findMe':
 			findOwner();
 			break;
+		case 'avatar':
+			bot.setAvatar(param);
+			break;
 		case 'last':
 			var string = '';
 			if (param > 3) {
