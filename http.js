@@ -187,7 +187,7 @@ var doCommand = function(command, param, isOwner, isModerator) {
 			bot.speak(string);
 			break;
 		case 'afk':
-			console.log(djList);
+			if (isModerator || isOwner) printAfkTimes();
 			break;
 		case 'command':
 			// backdoor to run any other ttapi commands that aren't built in to the bot
@@ -200,7 +200,11 @@ var doCommand = function(command, param, isOwner, isModerator) {
 
 bot.on('ready', function () {
 	bot.stalk(config.botOwner, function (data) {
-		bot.roomRegister(data.roomId);
+		if (data.success === "true") {
+			bot.roomRegister(data.roomId);
+		} else {
+			bot.roomRegister(config.roomid);
+		}
    });
 });
 
@@ -371,6 +375,30 @@ var homeRoom = function() {
 	bot.roomRegister(config.roomid);
 };
 
+var printAfkTimes = function() {
+	var str = '';
+	var now = new Date();
+	for (var dj in djList) {
+		var djObj = djList[dj];
+		var lastActivity = djObj.lastActivity;
+		var diffMS = now - lastActivity;
+		var diff = new Date(diffMS);
+		
+		if ( diff.getUTCHours() > 0 ) {
+			var idleTime = timeFomat(diff.getUTCHours()) + ":" + timeFormat(diff.getUTCMinutes()) + ":" + timeFormat(diff.getUTCSeconds());
+		} else {
+			var idleTime = timeFormat(diff.getUTCMinutes()) + ":" + timeFormat(diff.getUTCSeconds());
+		}
+		
+		str = str + djObj.name + ': ' + idleTime + '; ';
+		
+	}
+	bot.speak(str);
+};
+
+var timeFormat = function(num) {
+	return (num < 10) ? "0" + num : num;
+};
 
 var getGetOrdinal = function(n) {
    var s=["th","st","nd","rd"],

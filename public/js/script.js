@@ -1,5 +1,5 @@
 
-$('#commands').on('click', 'a', function(e) {
+$('.commands').on('click', 'a', function(e) {
 	e.preventDefault();
 	var command = $(this).attr('data-command');
 	var param = $(this).attr('data-param');
