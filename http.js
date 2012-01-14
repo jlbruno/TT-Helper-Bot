@@ -2,6 +2,7 @@ var Bot    = require('ttapi');
 var config = require('./settings-http.js');
 var fs 		= require('fs');
 var path 	= require('path');
+//var twss 	= require('twss');
 
 //var bot = new Bot(config.auth, config.userid, config.roomid);
 var bot = new Bot(config.auth, config.userid);
@@ -33,6 +34,8 @@ var currentSong = new Song();
 var history = [];
 
 var djList = { };
+
+var danceCounter = 0;
 
 
 
@@ -86,10 +89,20 @@ bot.on('httpRequest', function (request, res) {
 });
 
 
-
+var twssResp = 0;
 
 bot.on('speak', function(data){
-
+	// TWSS Functionality - seems like the TWSS module has some bugs for now. 
+	/* 
+	twss.algo = 'nbc'; //nbc or knn
+	twss.threshold = 10000;
+	var twssResponses = ["That's what she said!", "Haha that's what she said!"];
+	if ( twss.is(data.text) ) {
+		console.log(data.text + ' - ' + twssResponses[twssResp]);
+		twssResp ^= 1;
+	}
+	*/
+	
 	var isOwner = (data.userid === config.botOwner);
 	var isModerator = roomMods.indexOf(data.userid) > -1 ? true : false;
 	
@@ -124,7 +137,9 @@ bot.on('speak', function(data){
 var doCommand = function(command, param, isOwner, isModerator) {
 	switch(command){
 		case 'dance':
-			bot.vote('up');
+			if (isOwner) bot.vote('up');
+			danceCounter++;
+			if (danceCounter > 3) bot.vote('up');
 			//bot.speak('I love this song!');
 			break;
 		case 'lame':
@@ -189,6 +204,9 @@ var doCommand = function(command, param, isOwner, isModerator) {
 		case 'afk':
 			if (isModerator || isOwner) printAfkTimes();
 			break;
+		case 'timers':
+			if (isModerator || isOwner) printDjTimes();
+			break;
 		case 'command':
 			// backdoor to run any other ttapi commands that aren't built in to the bot
 			if (isOwner) eval(param);
@@ -200,7 +218,7 @@ var doCommand = function(command, param, isOwner, isModerator) {
 
 bot.on('ready', function () {
 	bot.stalk(config.botOwner, function (data) {
-		if (data.success === "true") {
+		if (data.success == true) {
 			bot.roomRegister(data.roomId);
 		} else {
 			bot.roomRegister(config.roomid);
@@ -245,6 +263,7 @@ bot.on('roomChanged', function (data) {
 			user.userid = data.userid;
 			user.name = data.name;
 			user.lastActivity = new Date();
+			user.startedSpinning = new Date();
 			djList[user.userid] = user;
 		});
 	}
@@ -260,6 +279,7 @@ bot.on('rem_dj', function (data) {
 bot.on('add_dj', function (data) {
 	var user = data.user[0];
 	user.lastActivity = new Date();
+	user.startedSpinning = new Date();
 	djList[user.userid] = user;
 });
 
@@ -320,6 +340,7 @@ bot.on('newsong', function(data){
 	}
 	
 	addCurrentSongToHistory(data);
+	danceCounter = 0;
 });
 
 bot.on('update_votes', function(data){
@@ -375,6 +396,11 @@ var homeRoom = function() {
 	bot.roomRegister(config.roomid);
 };
 
+
+var timeFormat = function(num) {
+	return (num < 10) ? "0" + num : num;
+};
+
 var printAfkTimes = function() {
 	var str = '';
 	var now = new Date();
@@ -396,9 +422,28 @@ var printAfkTimes = function() {
 	bot.speak(str);
 };
 
-var timeFormat = function(num) {
-	return (num < 10) ? "0" + num : num;
+
+var printDjTimes = function() {
+	var str = '';
+	var now = new Date();
+	for (var dj in djList) {
+		var djObj = djList[dj];
+		var startedSpinning = djObj.startedSpinning;
+		var diffMS = now - startedSpinning;
+		var diff = new Date(diffMS);
+		
+		if ( diff.getUTCHours() > 0 ) {
+			var spinningTime = timeFomat(diff.getUTCHours()) + ":" + timeFormat(diff.getUTCMinutes()) + ":" + timeFormat(diff.getUTCSeconds());
+		} else {
+			var spinningTime = timeFormat(diff.getUTCMinutes()) + ":" + timeFormat(diff.getUTCSeconds());
+		}
+		
+		str = str + djObj.name + ': ' + spinningTime + '; ';
+		
+	}
+	bot.speak(str);
 };
+
 
 var getGetOrdinal = function(n) {
    var s=["th","st","nd","rd"],
