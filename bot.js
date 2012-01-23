@@ -1,3 +1,4 @@
+var Bot    = require('./lib/http.js');
 
 var CONFIG = {
 	botGreetings : ['botname '],
@@ -5,8 +6,8 @@ var CONFIG = {
 	botOwner 	: 'XXXXXXXXXXXXXXXXXXXXXXXX',
 	auth 		: 'auth+live+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
 	userid 		: 'XXXXXXXXXXXXXXXXXXXXXXXX',
-	roomid 		: 'XXXXXXXXXXXXXXXXXXXXXXXX'
+	roomid 		: 'XXXXXXXXXXXXXXXXXXXXXXXX',	
+	port		: 1337
+
 
 };
-
-module.exports = CONFIG;
