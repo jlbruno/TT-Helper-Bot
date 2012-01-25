@@ -1,6 +1,6 @@
-var Bot    = require('./lib/http.js');
+var fs = require('fs');
 
-var CONFIG = {
+var config = {
 	botGreetings : ['botname '],
 	botGreetingsGeneric	: ['bot ', 'bot'],
 	botOwner 	: 'XXXXXXXXXXXXXXXXXXXXXXXX',
@@ -11,3 +11,5 @@ var CONFIG = {
 
 
 };
+
+eval(fs.readFileSync('./lib/http.js')+'');
