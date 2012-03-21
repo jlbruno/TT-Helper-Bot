@@ -21,7 +21,6 @@ var config = {
 
 
 var botBase = require('./lib/bot-base.js');
-var httpServer = require('./lib/server-http.js');
 
 
 var bot = new Bot(config.auth, config.userid);
@@ -32,10 +31,14 @@ var botObj = {
 	'bot' : bot
 }
 
+/* ===== REQUIRED MODULES ====== */
 // init base bot
 botBase.init(botObj);
 
+
+/* ===== OPTIONAL MODULES ===== */
 // init server listening
+var httpServer = require('./lib/server-http.js');
 botObj.commands = botBase.commands;
 httpServer.init(botObj);
 bot.listen(config.port, '127.0.0.1');
