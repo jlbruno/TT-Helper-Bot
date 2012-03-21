@@ -20,11 +20,10 @@ var config = {
 };
 
 
-var botStuff = require('./lib/http.js');
+var botBase = require('./lib/bot-base.js');
 
 
 var bot = new Bot(config.auth, config.userid);
-bot.listen(config.port, '127.0.0.1');
 
 
 var botObj = {
@@ -33,4 +32,4 @@ var botObj = {
 }
 
 
-botStuff.init(botObj);
+botBase.init(botObj);
