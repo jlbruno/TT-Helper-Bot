@@ -42,3 +42,7 @@ var httpServer = require('./lib/server-http.js');
 botObj.commands = botBase.commands;
 httpServer.init(botObj);
 bot.listen(config.port, '127.0.0.1');
+
+// bot will speak the release date of the album the song is from
+var botLastFM = require('./lib/module-lastfm.js');
+botLastFM.init(botObj);
