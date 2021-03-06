@@ -1,0 +1,26 @@
+{
+  "name": "tt-helper-bot",
+  "version": "1.1.0",
+  "description": "Helper bot for Turntable.fm",
+  "main": "bot.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "start": "node bot.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jlbruno/TT-Helper-Bot.git"
+  },
+  "author": "Jeff Leombruno",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jlbruno/TT-Helper-Bot/issues"
+  },
+  "homepage": "https://github.com/jlbruno/TT-Helper-Bot#readme",
+  "dependencies": {
+    "ttapi": "github:alaingilbert/Turntable-API"
+  }
+}

@@ -1,7 +1,7 @@
 var Bot    = require('ttapi');
 
-var config = {
-	botGreetings : ['botname '],
+var baseConfig = {
+	botGreetings : ['botname'],
 	botGreetingsGeneric	: ['bot ', 'bot'],
 	botOwner 	: 'XXXXXXXXXXXXXXXXXXXXXXXX',
 	auth 		: 'auth+live+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
@@ -24,11 +24,13 @@ var config = {
 	}
 };
 
+var botConfig = require('./config.js');
+var config = {...baseConfig, ...botConfig};
+
 
 var botBase = require('./lib/bot-base.js');
-
-
 var bot = new Bot(config.auth, config.userid);
+bot.debug = false; /* this can be set to true to put ttapi into debug mode */
 
 
 var botObj = {
@@ -49,5 +51,7 @@ httpServer.init(botObj);
 bot.listen(config.port, '127.0.0.1');
 
 // bot will speak the release date of the album the song is from
+/*
 var botLastFM = require('./lib/module-lastfm.js');
 botLastFM.init(botObj);
+*/
