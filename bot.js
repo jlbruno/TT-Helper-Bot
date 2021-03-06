@@ -1,12 +1,16 @@
+if (process.env.NODE_ENV !== 'production') {
+	require('dotenv').config();
+}
+
 var Bot    = require('ttapi');
 
-var baseConfig = {
+var config = {
 	botGreetings : ['botname'],
 	botGreetingsGeneric	: ['bot ', 'bot'],
-	botOwner 	: 'XXXXXXXXXXXXXXXXXXXXXXXX',
-	auth 		: 'auth+live+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-	userid 		: 'XXXXXXXXXXXXXXXXXXXXXXXX',
-	roomid 		: 'XXXXXXXXXXXXXXXXXXXXXXXX',	
+	botOwner 	: process.env.CONFIG_OWNER,
+	auth 		: process.env.CONFIG_AUTH,
+	userid 		: process.env.CONFIG_USERID,
+	roomid 		: process.env.CONFIG_ROOMID,	
 	port		: 1337,
 	autobop   : false,
 	autobot   : false,
@@ -23,9 +27,6 @@ var baseConfig = {
 		useragent: "APP_STRING"
 	}
 };
-
-var botConfig = require('./config.js');
-var config = {...baseConfig, ...botConfig};
 
 
 var botBase = require('./lib/bot-base.js');

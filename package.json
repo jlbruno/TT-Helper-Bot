@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/jlbruno/TT-Helper-Bot#readme",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "ttapi": "github:alaingilbert/Turntable-API"
   }
 }
