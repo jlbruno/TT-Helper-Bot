@@ -7,7 +7,7 @@ Rename `config-example.js` to `config.js` and update the configuration object.
 These are the config values you need to get from Turntable.
 ```
 	botOwner 	: 'XXXXXXXXXXXXXXXXXXXXXXXX',
-	auth 		: 'auth+live+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+	auth 		: 'XXXXXXXXXXXXXXXXXXXXXXXX',
 	userid 		: 'XXXXXXXXXXXXXXXXXXXXXXXX',
 	roomid 		: 'XXXXXXXXXXXXXXXXXXXXXXXX',	
 ```
