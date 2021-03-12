@@ -4,13 +4,15 @@ if (process.env.NODE_ENV !== 'production') {
 
 var Bot    = require('ttapi');
 
+// note: greetings need the space after to match properly
+// unsure if the second greeting without space is needed
 var config = {
-	botGreetings : ['botname'],
+	botGreetings : process.env.TTFM_CONFIG_BOTNAME,
 	botGreetingsGeneric	: ['bot ', 'bot'],
-	botOwner 	: process.env.CONFIG_OWNER,
-	auth 		: process.env.CONFIG_AUTH,
-	userid 		: process.env.CONFIG_USERID,
-	roomid 		: process.env.CONFIG_ROOMID,	
+	botOwner 	: process.env.TTFM_CONFIG_OWNER,
+	auth 		: process.env.TTFM_CONFIG_AUTH,
+	userid 		: process.env.TTFM_CONFIG_USERID,
+	roomid 		: process.env.TTFM_CONFIG_ROOMID,	
 	port		: 1337,
 	autobop   : false,
 	autobot   : false,
@@ -27,7 +29,6 @@ var config = {
 		useragent: "APP_STRING"
 	}
 };
-
 
 var botBase = require('./lib/bot-base.js');
 var bot = new Bot(config.auth, config.userid);
@@ -50,6 +51,7 @@ var httpServer = require('./lib/server-http.js');
 botObj.commands = botBase.commands;
 httpServer.init(botObj);
 bot.listen(config.port, '127.0.0.1');
+
 
 // bot will speak the release date of the album the song is from
 /*
