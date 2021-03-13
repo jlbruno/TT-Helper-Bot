@@ -13,7 +13,7 @@ var config = {
 	auth 		: process.env.TTFM_CONFIG_AUTH,
 	userid 		: process.env.TTFM_CONFIG_USERID,
 	roomid 		: process.env.TTFM_CONFIG_ROOMID,	
-	port		: 1337,
+	port		: process.env.PORT,
 	autobop   : false,
 	autobot   : false,
 	autoDj    : true,
