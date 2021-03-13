@@ -13,7 +13,8 @@ var config = {
 	auth 		: process.env.TTFM_CONFIG_AUTH,
 	userid 		: process.env.TTFM_CONFIG_USERID,
 	roomid 		: process.env.TTFM_CONFIG_ROOMID,	
-	port		: process.env.PORT,
+	server_port	: process.env.HTTP_PORT,
+	server_host : process.env.HTTP_HOST || '0.0.0.0',
 	autobop   : false,
 	autobot   : false,
 	autoDj    : true,
@@ -50,7 +51,7 @@ botBase.init(botObj);
 var httpServer = require('./lib/server-http.js');
 botObj.commands = botBase.commands;
 httpServer.init(botObj);
-bot.listen(config.port, '127.0.0.1');
+bot.listen(config.server_port, config.server_host);
 
 
 // bot will speak the release date of the album the song is from
