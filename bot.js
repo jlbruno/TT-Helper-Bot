@@ -7,7 +7,7 @@ var Bot    = require('ttapi');
 // note: greetings need the space after to match properly
 // unsure if the second greeting without space is needed
 var config = {
-	botGreetings : process.env.TTFM_CONFIG_BOTNAME,
+	botGreetings : ['sam ', 'sam'],
 	botGreetingsGeneric	: ['bot ', 'bot'],
 	botOwner 	: process.env.TTFM_CONFIG_OWNER,
 	auth 		: process.env.TTFM_CONFIG_AUTH,
@@ -17,7 +17,7 @@ var config = {
 	autobop   : false,
 	autobot   : false,
 	autoDj    : true,
-	danceMode : false,
+	danceMode : true,
 	followMe  : false,
 	debug     : false,
 	holdMode  : false,
