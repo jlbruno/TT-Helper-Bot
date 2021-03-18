@@ -19,6 +19,7 @@ var config = {
 	autobot   : false,
 	autoDj    : true,
 	danceMode : true,
+	danceVotesReq: 1,
 	followMe  : false,
 	debug     : false,
 	holdMode  : false,
