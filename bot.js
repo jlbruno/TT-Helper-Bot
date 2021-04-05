@@ -4,10 +4,12 @@ if (process.env.NODE_ENV !== 'production') {
 
 var Bot    = require('ttapi');
 
-// note: greetings need the space after to match properly
-// unsure if the second greeting without space is needed
+
+/* 
+Use this config to over ride any of the default config settings from bot-base.js
+*/
 var config = {
-	botGreetings : ['bot ', 'bot', 'sam ', 'sam', '@SamIAm '],
+	botGreetings : ['bot ', 'bot', 'sam ', 'sam', '@SamIAm '], // note: greetings need the space after to match properly
 	botGreetingsMod	: [],
 	botOwner 	: process.env.TTFM_CONFIG_OWNER,
 	auth 		: process.env.TTFM_CONFIG_AUTH,
@@ -15,16 +17,8 @@ var config = {
 	roomid 		: process.env.TTFM_CONFIG_ROOMID,	
 	server_port	: process.env.HTTP_PORT,
 	server_host : process.env.HTTP_HOST || '0.0.0.0',
-	autobop   : false,
-	autobot   : false,
-	autoDj    : true,
-	danceMode : true,
-	danceVotesReq: 1,
-	followMe  : false,
-	debug     : false,
-	holdMode  : false,
-	watchMode : false,
-	queue     : false,
+	autobop   : true, // whether bot should autobop
+	queue     : true, // TODO turn queue on or off
 	welcomeMods : true,  // TODO true if you want the bot to PM mods when they join
 	welcomeAll  : false,  // TODO true if you want the bot to PM 
 	songLimit : 3, // either null or an integer

@@ -4,10 +4,12 @@ if (process.env.NODE_ENV !== 'production') {
 
 var Bot    = require('ttapi');
 
-// note: greetings need the space after to match properly
-// unsure if the second greeting without space is needed
+
+/* 
+Use this config to over ride any of the default config settings from bot-base.js
+*/
 var config = {
-	botGreetings : ["bobby ", "@BobbyO'Toole "],
+	botGreetings : ["bobby ", "@BobbyO'Toole "], // note: greetings need the space after to match properly
 	botGreetingsMod	: ['bott ', 'bott'],
 	botOwner 	: process.env.TTFM_CONFIG_OWNER,
 	auth 		: process.env.TTFM_CONFIG_AUTH,
@@ -15,24 +17,14 @@ var config = {
 	roomid 		: process.env.TTFM_CONFIG_ROOMID,	
 	server_port	: process.env.HTTP_PORT,
 	server_host : process.env.HTTP_HOST || '0.0.0.0',
-	autobop   : false,
-	autobot   : false,
-	autoDj    : false,
-	danceMode : true,
-	danceVotesReq: 1,
-	followMe  : false,
-	debug     : false,
-	holdMode  : false,
-	watchMode : false,
-	queue     : false,
-	welcomeMods : true,  // TODO true if you want the bot to PM mods when they join
+	autoDj    : false, // whether bot should get on deck automatically if down to 1 DJ
+	danceMode : true, // whether bot is allowed to dance at all
+	danceVotesReq: 1, // votes needed to dance when requested
+	debug     : false, 
+	queue     : false, // TODO turn queue on or off
+	welcomeMods : false,  // TODO true if you want the bot to PM mods when they join
 	welcomeAll  : false,  // TODO true if you want the bot to PM 
-	songLimit : 3, // either null or an integer
-	lastfm    : {
-		api_key: "LASTFM_KEY",
-		secret: "LASTFM_SECRET",
-		useragent: "APP_STRING"
-	}
+	songLimit : 3 // either null or an integer
 };
 
 var botBase = require('../lib/bot-base.js');
