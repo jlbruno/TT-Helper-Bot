@@ -25,6 +25,9 @@ var config = {
 	holdMode  : false,
 	watchMode : false,
 	queue     : false,
+	welcomeMods : true,  // TODO true if you want the bot to PM mods when they join
+	welcomeAll  : false,  // TODO true if you want the bot to PM 
+	songLimit : 3, // either null or an integer
 	lastfm    : {
 		api_key: "LASTFM_KEY",
 		secret: "LASTFM_SECRET",
