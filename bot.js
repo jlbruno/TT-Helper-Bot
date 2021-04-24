@@ -22,6 +22,7 @@ var config = {
 	welcomeMods : true,  // TODO true if you want the bot to PM mods when they join
 	welcomeAll  : false,  // TODO true if you want the bot to PM 
 	songLimit : 3, // either null or an integer
+	botRegister	: true, // to register the account as a bot with TT
 	lastfm    : {
 		api_key: "LASTFM_KEY",
 		secret: "LASTFM_SECRET",
